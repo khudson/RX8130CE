@@ -1,22 +1,22 @@
-#include "ArtronShop_RX8130CE.h"
+#include "RX8130CE.h"
 
 
-ArtronShop_RX8130CE::ArtronShop_RX8130CE(TwoWire *wire) : _wire(wire) {
+RX8130CE::RX8130CE() {
     // ----
 }
 
-bool ArtronShop_RX8130CE::write_reg(uint8_t reg, uint8_t *value, size_t len) {
+bool RX8130CE::write_reg(uint8_t reg, uint8_t *value, size_t len) {
     this->_wire->beginTransmission(this->_addr);
     this->_wire->write(reg);
     this->_wire->write(value, len);
     return this->_wire->endTransmission() == 0;
 }
 
-bool ArtronShop_RX8130CE::write_reg(uint8_t reg, uint8_t value) {
+bool RX8130CE::write_reg(uint8_t reg, uint8_t value) {
     return this->write_reg(reg, &value, 1);
 }
 
-bool ArtronShop_RX8130CE::read_reg(uint8_t reg, uint8_t *value, size_t len) {
+bool RX8130CE::read_reg(uint8_t reg, uint8_t *value, size_t len) {
     this->_wire->beginTransmission(this->_addr);
     this->_wire->write(reg);
     if (this->_wire->endTransmission(false) != 0) {
@@ -33,21 +33,21 @@ bool ArtronShop_RX8130CE::read_reg(uint8_t reg, uint8_t *value, size_t len) {
     return true;
 }
 
-uint8_t ArtronShop_RX8130CE::read_reg(uint8_t reg) {
+uint8_t RX8130CE::read_reg(uint8_t reg) {
     uint8_t value = 0;
     this->read_reg(reg, &value, 1);
     return value;
 }
 
-bool ArtronShop_RX8130CE::stop(bool stop) {
+bool RX8130CE::stop(bool stop) {
     return this->write_reg(0x1E, stop ? 0x040 : 0x00);
 }
 
-uint8_t ArtronShop_RX8130CE::bcd2dec(uint8_t bcd) {
+uint8_t RX8130CE::bcd2dec(uint8_t bcd) {
     return ((bcd >> 4) * 10) + (bcd & 0x0F);
 }
 
-uint8_t ArtronShop_RX8130CE::dec2bcd(uint8_t bin) {
+uint8_t RX8130CE::dec2bcd(uint8_t bin) {
     return (((bin / 10) << 4) & 0xF0) | ((bin % 10) & 0x0F);
 }
 
@@ -57,7 +57,7 @@ uint8_t ArtronShop_RX8130CE::dec2bcd(uint8_t bin) {
     } \
 }
 
-bool ArtronShop_RX8130CE::begin() {
+bool RX8130CE::begin(TwoWire *wire) : _wire(wire) {
     /* 
      * Digital offset register:
      *   [7]   DET: 0 ->  disabled
@@ -131,7 +131,7 @@ bool ArtronShop_RX8130CE::begin() {
     return true;
 }
 
-bool ArtronShop_RX8130CE::setTime(struct tm t) {
+bool RX8130CE::setTime(struct tm t) {
     uint8_t buff[7];
     buff[0] = dec2bcd(t.tm_sec) & 0x7F;
     buff[1] = dec2bcd(t.tm_min) & 0x7F;
@@ -148,7 +148,7 @@ bool ArtronShop_RX8130CE::setTime(struct tm t) {
     return true;
 }
 
-bool ArtronShop_RX8130CE::getTime(struct tm *t) {
+bool RX8130CE::getTime(struct tm *t) {
     uint8_t buff[7];
     CHECK_OK(this->read_reg(0x10, buff, sizeof(buff)));
 
@@ -163,11 +163,11 @@ bool ArtronShop_RX8130CE::getTime(struct tm *t) {
     return true;
 }
 
-bool ArtronShop_RX8130CE::writeRAM(uint8_t address, uint8_t value) {
+bool RX8130CE::writeRAM(uint8_t address, uint8_t value) {
     return this->writeRAM(address, &value, 1);
 }
 
-size_t ArtronShop_RX8130CE::writeRAM(uint8_t address, uint8_t *value, size_t len) {
+size_t RX8130CE::writeRAM(uint8_t address, uint8_t *value, size_t len) {
     if (address > 3) { // Oversize of 64-bytes RAM
         return 0;
     }
@@ -183,7 +183,7 @@ size_t ArtronShop_RX8130CE::writeRAM(uint8_t address, uint8_t *value, size_t len
     return len;
 }
 
-bool ArtronShop_RX8130CE::readRAM(uint8_t address, uint8_t *value, size_t len) {
+bool RX8130CE::readRAM(uint8_t address, uint8_t *value, size_t len) {
     if (address > 3) { // Oversize of 64-bytes RAM
         return false;
     }
@@ -195,7 +195,7 @@ bool ArtronShop_RX8130CE::readRAM(uint8_t address, uint8_t *value, size_t len) {
     return this->read_reg(0x20 + address, value, len);
 }
 
-uint8_t ArtronShop_RX8130CE::readRAM(uint8_t address) {
+uint8_t RX8130CE::readRAM(uint8_t address) {
     uint8_t value = 0xFF;
     this->readRAM(address, &value, 1);
     return value;

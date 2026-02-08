@@ -1,11 +1,11 @@
-#ifndef __ARTRONSHOP_RX8130CE_H__
-#define __ARTRONSHOP_RX8130CE_H__
+#ifndef __RX8130CE_H__
+#define __RX8130CE_H__
 
 #include <Arduino.h>
 #include <Wire.h>
 #include <time.h>
 
-class ArtronShop_RX8130CE {
+class RX8130CE {
     private:
         const int _addr = 0x32;
         TwoWire *_wire = NULL;
@@ -21,9 +21,9 @@ class ArtronShop_RX8130CE {
         uint8_t dec2bcd(uint8_t bin) ;
 
     public:
-        ArtronShop_RX8130CE(TwoWire *wire = &Wire) ;
+        RX8130CE() ;
 
-        bool begin() ;
+        bool begin(TwoWire *wire) ;
         bool setTime(struct tm t) ;
         bool getTime(struct tm *t) ;
 

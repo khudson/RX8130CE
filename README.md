@@ -1,25 +1,25 @@
-# ArtronShop_RX8130CE
+# Epson Seiko RX8130CE Real-Time Clock Arduino Library
 
-Arduino library of RX8130CE Real-Time Clock/calendar with 4 byte RAM
+Epson Seiko RX8130CE Real-Time Clock/calendar with 4 byte RAM
 
 ## Examples
 
-initinitialize 
+initialize 
 
 ```C++
 #include <Arduino.h>
-#include <ArtronShop_RX8130CE.h>
+#include <RX8130CE.h>
 #include <Wire.h>
 #include <time.h>
 
-ArtronShop_RX8130CE rtc(&Wire);
+RX8130CE rtc;
 
 void setup() {
   Serial.begin(115200);
 
   Wire.begin();
-  while(!rtc.begin()) {
-    Serial.println("RX8130CE init error !");
+  while(!rtc.begin(&Wire)) {
+    Serial.println("RX8130CE: Failed to initialize");
     delay(1000);
   }
 }
@@ -36,9 +36,9 @@ struct tm t;
   t.tm_mon = 3 - 1; // 0 - 11
   t.tm_year = 2023 - 1900; // since 1900
   if (rtc.setTime(t)) {
-    Serial.println("Set time successful!");
+    Serial.println("RX8130CE: time set");
   } else {
-    Serial.println("Set time to RTC fail !");
+    Serial.println("RX8130CE: Failed to set time");
   }
 ```
 
@@ -54,7 +54,7 @@ Get time
       t.tm_mday, t.tm_mon + 1, t.tm_year + 1900
     );
   } else {
-    Serial.println("Get time from RTC fail !");
+    Serial.println("RX8130CE: Failed to get time");
   }
 ```
 
@@ -67,14 +67,14 @@ Full test
 #include <Wire.h>
 #include <time.h>
 
-ArtronShop_RX8130CE rtc(&Wire);
+RX8130CE rtc;
 
 void setup() {
   Serial.begin(115200);
 
   Wire.begin();
-  while(!rtc.begin()) {
-    Serial.println("RX8130CE init error !");
+  while(!rtc.begin(&Wire)) {
+    Serial.println("RX8130CE: failed to initialize");
     delay(1000);
   }
 
@@ -87,7 +87,7 @@ void setup() {
   t.tm_mon = 2 - 1; // 0 - 11
   t.tm_year = 2024 - 1900; // since 1900
   if (!rtc.setTime(t)) {
-    Serial.println("Set time to RTC fail !");
+    Serial.println("RX8130CE: Failed to set time");
   }
 }
 
@@ -101,7 +101,7 @@ void loop() {
       t.tm_mday, t.tm_mon + 1, t.tm_year + 1900
     );
   } else {
-    Serial.println("Get time from RTC fail !");
+    Serial.println("RX8130CE: Failed to get time");
   }
   delay(1000);
 }
